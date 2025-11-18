@@ -13,21 +13,21 @@
     </cities>
 
     <database_common_credentials>
-        <username>etl_user</username>
-        <password>123456</password>
+        <username>root</username>
+        <password></password>
         <driver>com.mysql.cj.jdbc.Driver</driver>
     </database_common_credentials>
 
     <database_staging>
-        <url>jdbc:mysql://192.168.217.10:3306/weather_staging?allowLoadLocalInfile=true</url>
+        <url>jdbc:mysql://localhost:3306/weather_staging?allowLoadLocalInfile=true</url>
     </database_staging>
 
     <database_warehouse>
-        <url>jdbc:mysql://192.168.217.10:3306/weather_wh</url>
+        <url>jdbc:mysql://localhost:3306/weather_wh</url>
     </database_warehouse>
 
     <database_log>
-        <url>jdbc:mysql://192.168.217.10:3306/log</url>
+        <url>jdbc:mysql://localhost:3306/log</url>
     </database_log>
 
     <log>
