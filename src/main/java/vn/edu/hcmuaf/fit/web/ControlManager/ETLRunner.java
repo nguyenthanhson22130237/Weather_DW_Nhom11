@@ -9,10 +9,10 @@ public class ETLRunner {
     public static void runAndLog(String stepName, Runnable step) {
         System.out.println("--- Bắt đầu chạy " + stepName + " ---");
 
-        vn.edu.hcmuaf.fit.wh.ControlManager.ConfigManager config = null;
+        ConfigManager config = null;
         try {
             // 1. Khởi tạo Config
-            config = new vn.edu.hcmuaf.fit.wh.ControlManager.ConfigManager("config.xml");
+            config = new ConfigManager("config.xml");
         } catch (Exception e) {
             System.err.println("!!! LỖI KHỞI TẠO CONFIG: " + e.getMessage());
             System.exit(1);
