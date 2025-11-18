@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+    <apiKey>d1ad0c5cd3aa4c46b5b172606252509</apiKey>
+    <apiUrl>https://api.weatherapi.com/v1/forecast.json</apiUrl>
+    <days>3</days>
+    <aqi>yes</aqi>
+    <alerts>no</alerts>
+    <cities>
+        <city>Hanoi</city>
+        <city>Ho_Chi_Minh</city>
+        <city>Vung_Tau</city>
+    </cities>
+
+    <database_common_credentials>
+        <username>root</username>
+        <password></password>
+        <driver>com.mysql.cj.jdbc.Driver</driver>
+    </database_common_credentials>
+
+    <database_staging>
+        <url>jdbc:mysql://localhost:3306/weather_staging?allowLoadLocalInfile=true</url>
+    </database_staging>
+
+    <database_warehouse>
+        <url>jdbc:mysql://localhost:3306/weather_wh</url>
+    </database_warehouse>
+
+    <database_log>
+        <url>jdbc:mysql://localhost:3306/log</url>
+    </database_log>
+
+    <log>
+        <path>logs/etl.log</path>
+        <level>INFO</level>
+    </log>
+</config>
