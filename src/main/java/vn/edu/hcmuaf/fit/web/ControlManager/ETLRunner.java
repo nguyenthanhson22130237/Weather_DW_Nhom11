@@ -26,7 +26,7 @@ public class ETLRunner {
                 config.getDbUserCommon(),
                 config.getDbPasswordCommon()
         )) {
-            vn.edu.hcmuaf.fit.web.ControlManager.ETLLogger logger = new vn.edu.hcmuaf.fit.web.ControlManager.ETLLogger(conn);
+            vn.edu.hcmuaf.fit.web.ControlManager.ETLLogger logger = new ETLLogger(conn);
             logId = logger.startLog(stepName); // 2. Ghi log START
 
             if (logId == -1) {
