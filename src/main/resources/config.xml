@@ -13,8 +13,8 @@
     </cities>
 
     <database_common_credentials>
-        <username>root</username>
-        <password></password>
+        <username>etl_user</username>
+        <password>123456</password>
         <driver>com.mysql.cj.jdbc.Driver</driver>
     </database_common_credentials>
 
