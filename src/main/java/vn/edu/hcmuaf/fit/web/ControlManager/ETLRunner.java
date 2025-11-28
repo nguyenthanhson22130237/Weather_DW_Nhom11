@@ -7,57 +7,74 @@ import java.sql.SQLException;
 public class ETLRunner {
 
     public static void runAndLog(String stepName, Runnable step) {
-        System.out.println("--- Bắt đầu chạy " + stepName + " ---");
+
+        // (5) ETLRunner in console
+        System.out.println("Bắt đầu chạy " + stepName);
 
         ConfigManager config = null;
         try {
-            // 1. Khởi tạo Config
+            // (6) Tạo ConfigManager để đọc file config.xml
             config = new ConfigManager("config.xml");
         } catch (Exception e) {
-            System.err.println("!!! LỖI KHỞI TẠO CONFIG: " + e.getMessage());
+            // (7) Thông báo "LỖI KHỞI TẠO CONFIG"
+            System.err.println("!!! LỖI KHỞI TẠO CONFIG " + e.getMessage());
             System.exit(1);
-            return;
         }
 
         int logId = -1;
 
+        // (8) ETLRunner kết nối DB Log (etl_log)
         try (Connection conn = DriverManager.getConnection(
                 config.getLogUrl(),
                 config.getDbUserCommon(),
                 config.getDbPasswordCommon()
         )) {
-            vn.edu.hcmuaf.fit.web.ControlManager.ETLLogger logger = new ETLLogger(conn);
-            logId = logger.startLog(stepName); // 2. Ghi log START
+            ETLLogger logger = new ETLLogger(conn);
 
-            if (logId == -1) {
-                throw new SQLException("Không thể ghi log khởi tạo vào database.");
+            if (logger.checkStepExecutedToday(stepName)) {
+                System.out.println("┌──────────────────────────────────────────────────────────┐");
+                System.out.println(String.format("│ THÔNG BÁO: Bước %-10s đã chạy THÀNH CÔNG hôm nay!    │", stepName));
+                System.out.println("│ Hệ thống sẽ không chạy lại để tránh trùng lặp dữ liệu.   │");
+                System.out.println("└──────────────────────────────────────────────────────────┘");
+                return; // END workflow
             }
 
-            // 3. Thực thi logic chính
-            step.run(); // Chạy logic của Extract/Load/Transform
+            // (10) Ghi log START vào etl_log, lấy logId
+            logId = logger.startLog(stepName);
+            if (logId == -1) {
+                throw new SQLException("Không thể ghi log START vào DB.");
+            }
 
-            // 4. Kết thúc ghi log thành công
-            logger.endLog(logId, "SUCCESS");
-            System.out.println("--- Bước " + stepName + " hoàn thành thành công. ---");
+            // Chạy bên LoadToStaging (11 - 19)
+            step.run();
+
+            // (20) Ghi log SUCCESS vào etl_log
+            logger.endLog(logId, "SUCCESS", "Hoàn thành thành công");
+
+            // (21) ETLRunner in console STEP DONE
+            System.out.println("--- Bước " + stepName + " Thành công! ---");
 
         } catch (SQLException e) {
+            // (9) Thông báo "LỖI KẾT NỐI DB LOG"
             System.err.println("!!! LỖI KẾT NỐI DB LOG: " + e.getMessage());
             System.exit(1);
 
         } catch (Exception e) {
-            // 5. Xử lý lỗi trong quá trình ETL (Ghi log FAILED)
             if (logId != -1) {
-                // Thử kết nối lại DB Log để ghi FAILED
-                try (Connection conn = DriverManager.getConnection(config.getLogUrl(), config.getDbUserCommon(), config.getDbPasswordCommon())) {
-                    new vn.edu.hcmuaf.fit.web.ControlManager.ETLLogger(conn).endLog(logId, "FAILED");
+                try (Connection conn = DriverManager.getConnection(
+                        config.getLogUrl(),
+                        config.getDbUserCommon(),
+                        config.getDbPasswordCommon()
+                )) {
+                    new ETLLogger(conn).endLog(logId, "FAILED",e.getMessage());
+                    System.out.println("LOG: Đã ghi log FAILED vào Database.");
                 } catch (SQLException logEx) {
-                    System.err.println("!!! LỖI QUAN TRỌNG: Ghi log FAILED thất bại. !!!");
-                    logEx.printStackTrace();
+                   // (13) hoặc (17) Ghi FAILED vào etl_log
+                    System.err.println("!!! LỖI QUAN TRỌNG: Ghi log FAILED thất bại");
                 }
             }
-            System.err.println("!!! Bước " + stepName + " thất bại: " + e.getMessage());
             e.printStackTrace();
-            System.exit(1); // Thoát với mã lỗi
+            System.exit(1);
         }
     }
 }
